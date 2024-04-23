@@ -51,6 +51,7 @@ void parseCommand(command_line cmd_line) {
 
         // Process each command
         if (strcmp(command, "exit") == 0) {				// Exits on request
+			printf("Bye Bye!\n");
 			free_command_line(&cmd_line);
         	exit(0);
         } else if (strcmp(command, "ls") == 0) {		// Executes the ls command if possible
@@ -87,7 +88,7 @@ void parseCommand(command_line cmd_line) {
 			}
 		}
 		else {
-            printf("ERROR: Unrecognized command: %s", command);
+            printf("ERROR: Unrecognized command: %s \n", command);
 			fflush(NULL);
         }
     }
@@ -120,8 +121,6 @@ int main(int argc, char *argv[]) {
 			exit(1);
     	}
 
-    // Rest of the code...
-		//// PARSING LINE BY LINE
 		//declear line_buffer
 		size_t len = 128;
 		char* line_buf = malloc (len);
@@ -144,15 +143,43 @@ int main(int argc, char *argv[]) {
 			}
 		printf("End of file \nBye Bye!");
         return 0;
-    } else {
-		command_line cmd;	// List of a command and its args
-        printf(">>> "); 
-		FILE *infile;
-		infile = stdin;
-		bool command = true;
-		cmd = str_filler(infile, " ");
-		parseCommand(cmd);
-        return 0;
+    } else { 
+		// Interactive Mode
+		while (true) {
+        printf(">>> ");
+        command_line cmd, cmdList;
+        char *input = NULL;
+        size_t len = 0;
+        ssize_t read;
+		
+
+        read = getline(&input, &len, stdin);
+        if (read == -1) {
+            printf("ERROR: Issue with reading input from console.\n");
+            break;
+        }
+
+        // Remove newline character
+        input[strcspn(input, "\n")] = '\0';
+
+        if (strlen(input) == 0) {
+            free(input);
+            continue; // Empty input, prompt again
+        }
+		
+		cmdList = str_filler(input, ";");
+				for (int i = 0; cmdList.command_list[i] != NULL; i++) {
+					if (cmdList.command_list[i] == NULL) {
+						printf("ERROR: Invalid command_list element\n");
+						continue;
+					}
+					cmd = str_filler(cmdList.command_list[i], " ");
+					parseCommand(cmd);
+					free_command_line(&cmd);
+				}
+        free(input);
+    }
+    return 0;
     }
 }
 

@@ -300,5 +300,3 @@ void displayFile(char *filename) {
     close(info); // Close the file
     free(buf); // Free the dynamically allocated memory for the buffer
 }
-
-
