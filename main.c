@@ -1,70 +1,158 @@
 /*
- * lab1_skeleton.c
- *
- *  Created on: Nov 25, 2020
- *      Author: Guan, Xin, Monil
+	Author: Ellison Schilling
+	Date: 04/19/2024
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "string_parser.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+# include <dirent.h>
+# include <stdbool.h>
+# include <sys/types.h>
+# include "command.h"
+# include "string_parser.h"
 
 #define _GNU_SOURCE
 
-int main(int argc, char const *argv[])
-{
-	//checking for command line argument
-	if (argc != 2)
-	{
-		printf ("Usage ./lab1.exe intput.txt\n");
+void dealloc(char *buf, FILE *in, FILE *out ) {
+    /* Utility to free memory, and close files */
+    if(buf != NULL) 
+		free(buf); 
+    if(in != NULL) 
+		fclose(in);
+    if(out != NULL) 
+		fclose(out);
+}
+
+bool wrongNumArgs(int target_num, int token_num){
+	if (token_num != target_num){
+	printf("ERROR: Wrong number of arugments for command, please ensure proper formatting");
+	return true;
+	} else {
+		return false;
 	}
-	//opening file to read
-	FILE *inFPtr;
-	inFPtr = fopen (argv[1], "r");
+}
 
-	//declear line_buffer
-	size_t len = 128;
-	char* line_buf = malloc (len);
+void parseCommand(command_line cmd_line) {
 
-	command_line large_token_buffer;
-	command_line small_token_buffer;
+	char **cmd_list = cmd_line.command_list; 	// Get the list containing the command and args if applicable
+    if (cmd_list == NULL) {
+        printf("ERROR: Invalid command_line structure\n");
+        return;
+    }
 
-	int line_num = 0;
+    char *command = cmd_list[0]; // Get the command
+    if (command == NULL) {
+        printf("ERROR: Invalid command\n");
+        return;
+    }
+	int num_tok = cmd_line.num_token;	// Get the number of tokens
 
-	//loop until the file is over
-	while (getline (&line_buf, &len, inFPtr) != -1)
-	{
-		printf ("Line %d:\n", ++line_num);
-
-		//tokenize line buffer
-		//large token is seperated by ";"
-		large_token_buffer = str_filler (line_buf, ";");
-		//iterate through each large token
-		for (int i = 0; large_token_buffer.command_list[i] != NULL; i++)
-		{
-			printf ("\tLine segment %d:\n", i + 1);
-
-			//tokenize large buffer
-			//smaller token is seperated by " "(space bar)
-			small_token_buffer = str_filler (large_token_buffer.command_list[i], " ");
-
-			//iterate through each smaller token to print
-			for (int j = 0; small_token_buffer.command_list[j] != NULL; j++)
-			{
-				printf ("\t\tToken %d: %s\n", j + 1, small_token_buffer.command_list[j]);
+        // Process each command
+        if (strcmp(command, "exit") == 0) {				// Exits on request
+			free_command_line(&cmd_line);
+        	exit(0);
+        } else if (strcmp(command, "ls") == 0) {		// Executes the ls command if possible
+			if (!wrongNumArgs(2, num_tok)){
+				listDir();
 			}
+        } else if (strcmp(command, "pwd") == 0) {		// Executes the pwd command if possible
+			if (!wrongNumArgs(2, num_tok)){
+				showCurrentDir();
+			}
+        } else if (strcmp(command, "mkdir") == 0) {		// Executes the mkdir command if possible
+			if (!wrongNumArgs(3, num_tok)){
+				makeDir(cmd_list[1]);
+			}
+		} else if (strcmp(command, "cd") == 0){			// Executes the cd coomand if possible
+			if (!wrongNumArgs(3, num_tok)){
+				changeDir(cmd_list[1]);
+			}
+		} else if (strcmp(command, "cp") == 0){			// Executes the cp coomand if possible
+			if (!wrongNumArgs(4, num_tok)){
+				copyFile(cmd_list[1], cmd_list[2]);
+			}
+		} else if (strcmp(command, "mv") == 0){			// Executes the mv coomand if possible
+			if (!wrongNumArgs(4, num_tok)){
+				moveFile(cmd_list[1], cmd_list[2]);
+			}
+		} else if (strcmp(command, "rm") == 0){			// Executes the rm coomand if possible
+			if (!wrongNumArgs(3, num_tok)){
+				deleteFile(cmd_list[1]);
+			}
+		} else if (strcmp(command, "cat") == 0){		// Executes the cat coomand if possible
+			if (!wrongNumArgs(3, num_tok)){
+				displayFile(cmd_list[1]);
+			}
+		}
+		else {
+            printf("ERROR: Unrecognized command: %s", command);
+			fflush(NULL);
+        }
+    }
 
-			//free smaller tokens and reset variable
-			free_command_line(&small_token_buffer);
-			memset (&small_token_buffer, 0, 0);
+int main(int argc, char *argv[]) {
+    setbuf(stdout, NULL);
+    
+    // Variables
+    FILE *i_file; 	// In file (holds the commands)
+    FILE *o_file;	// Out file (recieves the output)
+
+    // Allocate memory for the buffer
+    char *buffer;
+    size_t bufSize = 32;
+    buffer = (char*)malloc(bufSize * sizeof(char));
+
+    // File Mode (ensures that there are three args and a file flag)
+    if(argc == 3 && (strncmp(argv[1], "-f", 2) == 0 || strncmp(argv[1], "-file", 5) == 0)) {
+		o_file = freopen("output.txt", "w", stdout);
+		if (o_file == NULL) {
+			printf("ERROR: Failed to open output file\n");
+			dealloc(buffer, NULL, NULL);
+			exit(1);
 		}
 
-		//free smaller tokens and reset variable
-		free_command_line (&large_token_buffer);
-		memset (&large_token_buffer, 0, 0);
-	}
-	fclose(inFPtr);
-	//free line buffer
-	free (line_buf);
+		i_file = fopen(argv[2], "r");
+		if (i_file == NULL) {
+			printf("ERROR: Input file missing\n");
+			dealloc(buffer, NULL, o_file);
+			exit(1);
+    	}
+
+    // Rest of the code...
+		//// PARSING LINE BY LINE
+		//declear line_buffer
+		size_t len = 128;
+		char* line_buf = malloc (len);
+		command_line cmdList;	// List of all the commands in a line
+		command_line cmd;	// List of a command and its args
+
+		//loop until the file is over
+			while (getline(&line_buf, &len, i_file) != -1) {
+				cmdList = str_filler(line_buf, ";");
+				for (int i = 0; cmdList.command_list[i] != NULL; i++) {
+					if (cmdList.command_list[i] == NULL) {
+						printf("ERROR: Invalid command_list element\n");
+						continue;
+					}
+					cmd = str_filler(cmdList.command_list[i], " ");
+					parseCommand(cmd);
+					free_command_line(&cmd);
+				}
+				free_command_line(&cmdList);
+			}
+		printf("End of file \nBye Bye!");
+        return 0;
+    } else {
+		command_line cmd;	// List of a command and its args
+        printf(">>> "); 
+		FILE *infile;
+		infile = stdin;
+		bool command = true;
+		cmd = str_filler(infile, " ");
+		parseCommand(cmd);
+        return 0;
+    }
 }
+

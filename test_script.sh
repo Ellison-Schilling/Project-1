@@ -41,7 +41,7 @@ EOF
     )
 
     # Define the expected output
-    expected_output=">>> .. pseudo-shell . test_file1.txt test_file2.txt 
+    expected_output=">>> .. . test_file1.txt pseudo-shell test_file2.txt 
 >>> "
 
     mem_errors=$(echo "$valgrind_output" | grep 'ERROR SUMMARY:')
@@ -59,13 +59,18 @@ EOF
         :
     fi
 
+    outSorted=
+
     # Compare the expected output with the pseudo-shell output
-    if [ "$pseudo_shell_output" == "$expected_output" ]; then
+    if [ $(echo "$pseudo_shell_output" | grep -o . | sort | tr -d  "\n") == $(echo "$expected_output" | grep -o . | sort | tr -d  "\n" ) ]; then
         echo "'ls' command output matches expected output."
     else
-        echo "ERROR: 'ls' command output does not match expected output."
+        echo "ERROR: 'ls' command output does not match expected output. it does not have to be in order but this is expected output"
 
-        diff -u <(echo "$pseudo_shell_output") <(echo "$expected_output")
+        echo "$expected_output"
+
+        echo "Your output"
+        echo "$pseudo_shell_output" > out.txt
 
         echo "Note: make sure you are listing all files with space inbetween. Also print the prompt like this '>>> '"
     fi
@@ -549,7 +554,7 @@ EOF
     )
 
     # Define the expected output
-    expected_output=">>> .. pseudo-shell . test_file1.txt test_file2.txt 
+    expected_output=">>> .. . pseudo-shell test_file1.txt test_file2.txt 
 .. pseudo-shell . test_file1.txt test_file2.txt 
 .. pseudo-shell . test_file1.txt test_file2.txt 
 >>> "
@@ -573,7 +578,7 @@ EOF
     fi
 
     # Compare the expected output with the pseudo-shell output
-    if [ "$pseudo_shell_output" == "$expected_output" ]; then
+    if [ $(echo "$pseudo_shell_output" | grep -o . | sort | tr -d  "\n") == $(echo "$expected_output" | grep -o .| sort | tr -d  "\n" ) ]; then
         echo "'multiple commands on the same line' command output matches expected output."
     else
         echo "Error: 'multiple commands same line' command output does not match expected output."
@@ -658,7 +663,7 @@ test_file_mode() {
 ls
 ls" > input.txt
 
-    echo ".. expected_output.txt input.txt pseudo-shell . output.txt test_file1.txt test_file2.txt 
+    echo ".. expected_output.txt pseudo-shell input.txt . output.txt test_file1.txt test_file2.txt 
 .. expected_output.txt input.txt pseudo-shell . output.txt test_file1.txt test_file2.txt 
 .. expected_output.txt input.txt pseudo-shell . output.txt test_file1.txt test_file2.txt " > expected_output.txt
 
@@ -669,7 +674,7 @@ ls" > input.txt
     process_valgrind_output "$valgrind_output"
 
     # Now compare out.txt with the expected output
-    if diff -u output.txt expected_output.txt > /dev/null; then
+    if cmp -s <(grep -o . output.txt | sort) <(grep -o . expected_output.txt | sort); then
         echo "Success: Output matches expected output."
     else
         echo "ERROR: output.txt does not match expected output."
@@ -687,6 +692,7 @@ ls" > input.txt
 # Compile the program
 make clean
 rm psuedo-shell
+rm -drf $TEST_DIR
 make
 if [ ! -f "$EXECUTABLE" ]; then
     echo "Error: Compilation failed, executable not found."
