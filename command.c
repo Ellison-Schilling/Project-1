@@ -68,8 +68,8 @@ void listDir()
             while((dirt = readdir(dir)) != NULL) {  // While there is still more to read from the directory
 
                 file = dirt->d_name;    // file is set to the name of the single given directory entry indicated by dirt
-                strcat(file, " "); // Concatanates a space onto the filename to be printed
                 myPrint(file); // Prints the given file
+                myPrint(" ");
             }
             myPrint("\n"); // Print newline charcter for proper spacing
             closedir(dir); // Close the directory stream after iterating through it
@@ -179,8 +179,8 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
         return;
     }
 
-    // Get the file name from sourcePath
-    dest_file_name = strrchr(sourcePath, '/');
+    // Get the file name from sourcePath 
+    dest_file_name = basename(sourcePath);
     if (dest_file_name == NULL) // No '/' found, just use the source file name
         dest_file_name = sourcePath;
     else // Move one character ahead to avoid '/'
