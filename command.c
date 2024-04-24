@@ -3,6 +3,7 @@
     Date: 4/19/2024
     Description: A file containing all possible commands for the psudo shell to execute  
 *******/
+
 # include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
@@ -52,7 +53,6 @@ bool prefix(char *string, char *prefix) {
 */
 void listDir()
 {
-    //myPrint("Executing ls:\n");
     char cur_dir[256]; // An empty string as big as it can go to hold the current directory path
     struct dirent *dirt;  // a pointer to a single directory entry
     DIR *dir = NULL; // a pointer for the directory stream
@@ -75,9 +75,9 @@ void listDir()
                 myPrint(file); // Prints the given file
             }
             myPrint("\n"); // Print newline charcter for proper spacing
+            closedir(dir); // Close the directory stream after iterating through it
         }
     }
-    closedir(dir);
 }
 
 /*
@@ -90,7 +90,6 @@ void listDir()
 */
 void showCurrentDir()
 {
-    //myPrint("Executing pwd:\n");
     char cur_dir[256]; // An empty string as big as it can go to hold the current directory path
 
     // Attempts to read the currecnt directory and get the path, prints error on failure
@@ -113,7 +112,6 @@ void showCurrentDir()
 */
 void makeDir(char *dirName)
 {
-    //myPrint("Executing mkdir:\n");
     char cur_dir[64];   // Declare a character array of size 64 to store the current working directory
     char dir_path[256]; // Declare a character array of size 256 to store the path of the directory to be created
 
@@ -138,27 +136,26 @@ void makeDir(char *dirName)
             N/A
 */
 void changeDir(char *dirName) {
-    //myPrint("Executing cd:\n");
     if (strcmp(dirName, "..") == 0) {
         // Handle the parent directory case
-        char *parent_dir = (char *)malloc(256 * sizeof(char));
+        char *parent_dir = (char *)malloc(256 * sizeof(char)); // Allocate memory for the parent directory path
         if (getcwd(parent_dir, 256) != NULL) {
-            char *last_slash = strrchr(parent_dir, '/');
+            char *last_slash = strrchr(parent_dir, '/'); // Find the last '/' in the path
             if (last_slash != NULL) {
-                *last_slash = '\0';
-                int changed_directory = chdir(parent_dir);
+                *last_slash = '\0'; // Terminate the string at the last '/' to get the parent directory
+                int changed_directory = chdir(parent_dir); // Change to the parent directory
                 if (changed_directory != 0) {
                     myPrint("ERROR: Wasn't able to change the directory\n");
                 }
             }
         }
-        free(parent_dir);
+        free(parent_dir); // Free the dynamically allocated memory for parent_dir
     } else if (strcmp(dirName, ".") == 0) {
         // Handle the current directory case
         // No need to do anything, as we're already in the current directory
     } else {
         // Handle the regular directory case
-        int changed_directory = chdir(dirName);
+        int changed_directory = chdir(dirName); // Change to the specified directory
         if (changed_directory != 0) {
             myPrint("ERROR: Wasn't able to change the directory\n");
         }
@@ -175,18 +172,18 @@ void changeDir(char *dirName) {
             N/A
 */
 void copyFile(char *sourcePath, char *destinationPath) { // cp
-    //myPrint("Executing cp:\n");
-    int in_descriptor, out_descriptor;
+    int inFD, outFD; // Input and output file descriptors
     char buffer[256]; // Buffer to read and write data
+    char *dest_file_name = NULL; // Pointer to store the destination file name
 
-    in_descriptor = open(sourcePath, O_RDONLY);
-    if (in_descriptor < 0) {
+    inFD = open(sourcePath, O_RDONLY);
+    if (inFD < 0) {
         myPrint("ERROR: Can't open input file\n");
         return;
     }
 
     // Get the file name from sourcePath
-    char *dest_file_name = strrchr(sourcePath, '/');
+    dest_file_name = strrchr(sourcePath, '/');
     if (dest_file_name == NULL) // No '/' found, just use the source file name
         dest_file_name = sourcePath;
     else // Move one character ahead to avoid '/'
@@ -195,24 +192,24 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
     // Change to the destination directory
     if (chdir(destinationPath) != 0) {
         myPrint("ERROR: Can't change directory to destination\n");
-        close(in_descriptor);
+        close(inFD);
         return;
     }
     
-    out_descriptor = open(dest_file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-    if (out_descriptor < 0) {
+    outFD = open(dest_file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    if (outFD < 0) {
         myPrint("ERROR: Can't open destination file\n");
-        close(in_descriptor);
+        close(inFD);
         return;
     } 
 
     ssize_t bytes_read, bytes_written;
-    while ((bytes_read = read(in_descriptor, buffer, sizeof(buffer))) > 0) {
-        bytes_written = write(out_descriptor, buffer, bytes_read);
+    while ((bytes_read = read(inFD, buffer, sizeof(buffer))) > 0) {
+        bytes_written = write(outFD, buffer, bytes_read);
         if (bytes_written != bytes_read) {
             myPrint("ERROR: write error\n");
-            close(in_descriptor);
-            close(out_descriptor);
+            close(inFD);
+            close(outFD);
             return;
         }
     }
@@ -221,8 +218,8 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
         myPrint("ERROR: read error\n");
     }
 
-    close(in_descriptor);
-    close(out_descriptor);
+    close(inFD);
+    close(outFD);
 }
 
 

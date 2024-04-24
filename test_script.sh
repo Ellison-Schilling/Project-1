@@ -5,7 +5,7 @@
 #
 #
 
-EXECUTABLE="./pseudo-shell-arm-based"
+EXECUTABLE="./pseudo-shell.exe"
 
 TEST_DIR="test_pseudo_shell"
 FILE1="test_file1.txt"

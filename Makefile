@@ -1,6 +1,6 @@
 
 CFLAGS = -W -Wall
-CC = GCC
+CC = gcc
 OBJS= main.o string_parser.o command.o
 
 all: pseudo-shell.exe
@@ -21,4 +21,4 @@ clean:
 	rm -f pseudo-shell.exe
 
 clean_all:
-	rm -f pseudo-shell.exe $(OBJS)
+	rm -f pseudo-shell.exe main.o string_parser.o command.o

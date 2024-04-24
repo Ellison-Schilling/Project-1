@@ -177,6 +177,7 @@ int main(int argc, char *argv[]) {
 					parseCommand(cmd);
 					free_command_line(&cmd);
 				}
+		free(&cmdList);
         free(input);
     }
     return 0;
