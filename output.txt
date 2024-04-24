@@ -1,6 +1,6 @@
 /Users/ellisonschilling/Documents/CS415/Project-1
-ERROR: could not create given directory
-ERROR: Unrecognized command: sfjlksagjlks 
+Error! could not create given directory
+Error! Unrecognized command: sfjlksagjlks 
 . .. output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1/test
 /Users/ellisonschilling/Documents/CS415/Project-1/test

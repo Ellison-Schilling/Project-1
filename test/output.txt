@@ -1,10 +1,10 @@
 /Users/ellisonschilling/Documents/CS415/Project-1
 ERROR: could not create given directory
 ERROR: Unrecognized command: sfjlksagjlks 
-. .. 
+. .. output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1/test
 /Users/ellisonschilling/Documents/CS415/Project-1/test
-. .. input.txt 
+. .. input.txt output.txt 
 pwd ; mkdir test ; cd test
 sfjlksagjlks;ls; pwd;
 cd .. ; cd test ; pwd
@@ -14,9 +14,9 @@ rm del.txt ; ls
 cd .. ; pwd
 ls
 /Users/ellisonschilling/Documents/CS415/Project-1/test
-. .. del.txt 
-. .. 
+. .. del.txt output.txt 
+. .. output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1
-. .. main.o example-output.txt ~$port_Collection_Template.docx pseudo-shell.exe test pseudo-shell Makefile string_parser.h command.c string_parser.o Project 1 - Description.pdf README.md input.txt main.c Report_Collection_Template.docx .gitattributes my_pseudo-shell.exe test_script.sh command.h command.o string_parser.c .git output.txt 
+. .. main.o example-output.txt ~$port_Collection_Template.docx pseudo-shell.exe test Makefile string_parser.h command.c string_parser.o Project 1 - Description.pdf README.md input.txt main.c Report_Collection_Template.docx .gitattributes test_script.sh command.h command.o string_parser.c .git output.txt 
 End of file 
 Bye Bye!

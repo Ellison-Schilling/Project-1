@@ -50,7 +50,6 @@ void parseCommand(command_line cmd_line) {
 
     // Process each command
     if (strcmp(command, "exit") == 0) {                // Exits on request
-        printf("Bye Bye!\n");
         free_command_line(&cmd_line);
         exit(0);
     } else if (strcmp(command, "ls") == 0) {           // Executes the ls command if possible
@@ -123,7 +122,6 @@ int main(int argc, char *argv[]) {
         size_t len = 128;
         char *line_buf = malloc(len);
         command_line cmdList; // List of all the commands in a line
-        command_line cmd;     // List of a command and its args
 
         // loop until the file is over
         while (getline(&line_buf, &len, i_file) != -1) {
@@ -133,8 +131,9 @@ int main(int argc, char *argv[]) {
                     printf("Error! Invalid command_list element\n");
                     continue;
                 }
-                cmd = str_filler(cmdList.command_list[i], " ");
-                parseCommand(cmd);
+                command_line cmd;     // List of a command and its args
+				cmd = str_filler(cmdList.command_list[i], " ");
+				parseCommand(cmd);
                 free_command_line(&cmd);
             }
             free_command_line(&cmdList);
@@ -147,7 +146,7 @@ int main(int argc, char *argv[]) {
         // Interactive Mode
         while (true) {
             printf(">>> ");
-            command_line cmd, cmdList;
+            command_line cmdList;
             char *input = NULL;
             size_t len = 0;
             ssize_t read;
@@ -172,15 +171,15 @@ int main(int argc, char *argv[]) {
                     printf("Error! Invalid command_list element\n");
                     continue;
                 }
-                cmd = str_filler(cmdList.command_list[i], " ");
+                command_line cmd;
+				cmd = str_filler(cmdList.command_list[i], " ");
                 parseCommand(cmd);
                 free_command_line(&cmd);
             }
             free_command_line(&cmdList);
             free(input);
         }
+        free(buffer); // Free the dynamically allocated buffer
     }
     return 0;
 }
-
-

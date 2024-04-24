@@ -119,7 +119,7 @@ void makeDir(char *dirName)
     strcat(dir_path, "/");  // Append a forward slash '/' to dir_path
     strcat(dir_path, dirName);  // Append the name of the directory to be created to dir_path
 
-    if (mkdir(dir_path, 0777) != 0) {   // Call the mkdir function to create the directory
+    if (mkdir(dir_path, 0666) != 0) {   // Call the mkdir function to create the directory
         myPrint("Error! could not create given directory\n");   // If mkdir fails, print an error message
     }
 }
