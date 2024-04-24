@@ -35,11 +35,11 @@ bool wrongNumArgs(int target_num, int token_num) {
 }
 
 void parseCommand(command_line cmd_line) {
-    char **cmd_list = cmd_line.command_list; // Get the list containing the command and args if applicable
     if (cmd_list == NULL) {
         printf("Error! Invalid command_line structure\n");
         return;
     }
+    char **cmd_list = cmd_line.command_list; // Get the list containing the command and args if applicable
 
     char *command = cmd_list[0]; // Get the command
     if (command == NULL) {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     size_t bufSize = 32;
     buffer = (char *)malloc(bufSize * sizeof(char));
 
-    // File Mode (ensures that there are three args and a file flag)
+    // **** FILE MODE (ensures that there are three args and a file flag) ****
     if (argc == 3 && (strncmp(argv[1], "-f", 2) == 0 || strncmp(argv[1], "-file", 5) == 0)) {
         o_file = freopen("output.txt", "w", stdout);
         if (o_file == NULL) {
@@ -125,25 +125,26 @@ int main(int argc, char *argv[]) {
 
         // loop until the file is over
         while (getline(&line_buf, &len, i_file) != -1) {
-            cmdList = str_filler(line_buf, ";");
-            for (int i = 0; cmdList.command_list[i] != NULL; i++) {
-                if (cmdList.command_list[i] == NULL) {
+            cmdList = str_filler(line_buf, ";"); 	// Deliniate the line by the ';' and sort into a list of commands
+            for (int i = 0; cmdList.command_list[i] != NULL; i++) { 	// Go through each command
+                if (cmdList.command_list[i] == NULL) {	// If command is NULL send error message
                     printf("Error! Invalid command_list element\n");
                     break;
                 }
-                command_line cmd;     // List of a command and its args
-				cmd = str_filler(cmdList.command_list[i], " ");
-				parseCommand(cmd);
-                free_command_line(&cmd);
+                command_line cmd;     // List of a command and its args (initialize each time to make sure no unititialized values)
+				cmd = str_filler(cmdList.command_list[i], " ");	// Create a command_line for the command
+				parseCommand(cmd);	// Execute command
+                free_command_line(&cmd);	// Free command_line of the single command
             }
-            free_command_line(&cmdList);
+            free_command_line(&cmdList);	// Free command_list of commands
         }
         free(line_buf); // Free the dynamically allocated memory for line_buf
         printf("End of file \nBye Bye!");
         dealloc(buffer, i_file, o_file);
         return 0;
     } else {
-        // Interactive Mode
+
+        // **** INTERACTIVE MODE ****
         while (true) {
             printf(">>> ");
             command_line cmdList;
@@ -151,7 +152,7 @@ int main(int argc, char *argv[]) {
             size_t len = 0;
             ssize_t read;
 
-            read = getline(&input, &len, stdin);
+            read = getline(&input, &len, stdin); // Get input from the command line
             if (read == -1) {
                 printf("Error! Issue with reading input from console.\n");
                 break;
@@ -172,12 +173,15 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
                 command_line cmd;
-				cmd = str_filler(cmdList.command_list[i], " ");
-                parseCommand(cmd);
-                free_command_line(&cmd);
+				cmd = str_filler(cmdList.command_list[i], " "); // Parse the commands by the spaces to differentiate between the command and it's args
+                parseCommand(cmd);	// Parse or call the command indicated by the commandline
+                free_command_line(&cmd);	// Free this instance of the command
+				memset(&cmd, 0, 0);
+
             }
-            free_command_line(&cmdList);
-            free(input);
+            free_command_line(&cmdList);	// Free the entire list of commands
+			memset(&cmdList, 0, 0);
+            free(input);	// Free the given input
         }
         free(buffer); // Free the dynamically allocated buffer
     }

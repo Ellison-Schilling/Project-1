@@ -12,6 +12,7 @@
 # include <unistd.h>
 # include <dirent.h>
 # include <sys/stat.h>
+#include <libgen.h>
 
 /*
 Description: My implementation of a print to standard out. Used to slim down the code, and make reading
@@ -183,8 +184,6 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
     dest_file_name = basename(sourcePath);
     if (dest_file_name == NULL) // No '/' found, just use the source file name
         dest_file_name = sourcePath;
-    else // Move one character ahead to avoid '/'
-        dest_file_name++;
 
     // Change to the destination directory
     if (chdir(destinationPath) != 0) {

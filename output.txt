@@ -1,10 +1,10 @@
 /Users/ellisonschilling/Documents/CS415/Project-1
 Error! could not create given directory
 Error! Unrecognized command: sfjlksagjlks 
-. .. output.txt 
+. .. nput.txt output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1/test
 /Users/ellisonschilling/Documents/CS415/Project-1/test
-. .. input.txt output.txt 
+. .. nput.txt input.txt output.txt 
 pwd ; mkdir test ; cd test
 sfjlksagjlks;ls; pwd;
 cd .. ; cd test ; pwd
@@ -14,8 +14,8 @@ rm del.txt ; ls
 cd .. ; pwd
 ls
 /Users/ellisonschilling/Documents/CS415/Project-1/test
-. .. del.txt output.txt 
-. .. output.txt 
+. .. nput.txt del.txt output.txt 
+. .. nput.txt output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1
 . .. main.o example-output.txt ~$port_Collection_Template.docx pseudo-shell.exe test Makefile string_parser.h command.c string_parser.o folder Project 1 - Description.pdf "test_new_dir" README.md input.txt main.c Report_Collection_Template.docx .gitattributes test_script.sh command.h command.o string_parser.c .git output.txt 
 End of file 
