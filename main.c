@@ -44,7 +44,7 @@ void parseCommand(command_line cmd_line) {
     char *command = cmd_list[0]; // Get the command
     if (command == NULL) {
         printf("Error! Invalid command\n");
-        return;
+		return;
     }
     int num_tok = cmd_line.num_token; // Get the number of tokens
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; cmdList.command_list[i] != NULL; i++) {
                 if (cmdList.command_list[i] == NULL) {
                     printf("Error! Invalid command_list element\n");
-                    continue;
+                    break;
                 }
                 command_line cmd;     // List of a command and its args
 				cmd = str_filler(cmdList.command_list[i], " ");

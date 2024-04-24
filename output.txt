@@ -17,6 +17,6 @@ ls
 . .. del.txt output.txt 
 . .. output.txt 
 /Users/ellisonschilling/Documents/CS415/Project-1
-. .. main.o example-output.txt ~$port_Collection_Template.docx pseudo-shell.exe test Makefile string_parser.h command.c string_parser.o Project 1 - Description.pdf README.md input.txt main.c Report_Collection_Template.docx .gitattributes test_script.sh command.h command.o string_parser.c .git output.txt 
+. .. main.o example-output.txt ~$port_Collection_Template.docx pseudo-shell.exe test Makefile string_parser.h command.c string_parser.o folder Project 1 - Description.pdf "test_new_dir" README.md input.txt main.c Report_Collection_Template.docx .gitattributes test_script.sh command.h command.o string_parser.c .git output.txt 
 End of file 
 Bye Bye!
