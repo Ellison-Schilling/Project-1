@@ -3,7 +3,6 @@
     Date: 4/19/2024
     Description: A file containing all possible commands for the psudo shell to execute  
 *******/
-
 # include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
@@ -26,7 +25,6 @@ void myPrint(char* string){
 	write(1, string, strlen(string));
 }
 
-
 /*
  Description: Checks if the provided string starts with the given prefix, a helper function.
         Args: 
@@ -41,7 +39,6 @@ bool prefix(char *string, char *prefix) {
 	else
 		return false;
 }
-
 
 /*
     Description: From the current file list all other files in 
@@ -60,12 +57,12 @@ void listDir()
 
     // Attempts to read the currecnt directory and get the path, prints error on failure
     if(getcwd(cur_dir, sizeof(cur_dir)) == NULL) {  
-        myPrint("Error: unable to read from directory\n");
+        myPrint("Error! unable to read from directory\n");
     }
     else {
         if((dir = opendir(cur_dir)) == NULL) {  // If the current pathway is not actually a directory 
                                                 // pathway then an error message is printed
-            myPrint("Error: unable to open directory\n");
+            myPrint("Error! unable to open directory\n");
         }
         else {
             while((dirt = readdir(dir)) != NULL) {  // While there is still more to read from the directory
@@ -94,7 +91,7 @@ void showCurrentDir()
 
     // Attempts to read the currecnt directory and get the path, prints error on failure
     if(getcwd(cur_dir, sizeof(cur_dir)) == NULL) {
-        myPrint("Error: unable to read from directory\n");
+        myPrint("Error! unable to read from directory\n");
     }
     else {
         strcat(cur_dir, "\n");  // Concataonates a new line charchter onto the path to be printed
@@ -123,7 +120,7 @@ void makeDir(char *dirName)
     strcat(dir_path, dirName);  // Append the name of the directory to be created to dir_path
 
     if (mkdir(dir_path, 0777) != 0) {   // Call the mkdir function to create the directory
-        myPrint("ERROR: could not create given directory\n");   // If mkdir fails, print an error message
+        myPrint("Error! could not create given directory\n");   // If mkdir fails, print an error message
     }
 }
 
@@ -145,7 +142,7 @@ void changeDir(char *dirName) {
                 *last_slash = '\0'; // Terminate the string at the last '/' to get the parent directory
                 int changed_directory = chdir(parent_dir); // Change to the parent directory
                 if (changed_directory != 0) {
-                    myPrint("ERROR: Wasn't able to change the directory\n");
+                    myPrint("Error! Wasn't able to change the directory\n");
                 }
             }
         }
@@ -157,7 +154,7 @@ void changeDir(char *dirName) {
         // Handle the regular directory case
         int changed_directory = chdir(dirName); // Change to the specified directory
         if (changed_directory != 0) {
-            myPrint("ERROR: Wasn't able to change the directory\n");
+            myPrint("Error! Wasn't able to change the directory\n");
         }
     }
 }
@@ -176,9 +173,9 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
     char buffer[256]; // Buffer to read and write data
     char *dest_file_name = NULL; // Pointer to store the destination file name
 
-    inFD = open(sourcePath, O_RDONLY);
+    inFD = open(sourcePath, O_RDONLY);  // Open source file
     if (inFD < 0) {
-        myPrint("ERROR: Can't open input file\n");
+        myPrint("Error! Can't open input file\n");
         return;
     }
 
@@ -191,37 +188,40 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
 
     // Change to the destination directory
     if (chdir(destinationPath) != 0) {
-        myPrint("ERROR: Can't change directory to destination\n");
+        myPrint("Error! Can't change directory to destination\n");
         close(inFD);
         return;
     }
     
+    // Open or create the destination file and destination file descriptor, giving full permissions
     outFD = open(dest_file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-    if (outFD < 0) {
-        myPrint("ERROR: Can't open destination file\n");
-        close(inFD);
+    if (outFD < 0) {    // Check if not successful
+        myPrint("Error! Can't open destination file\n");
+        close(inFD);    // Close input file
         return;
     } 
 
+    // Write to output file what was written in the source file, the copying part of the function
     ssize_t bytes_read, bytes_written;
-    while ((bytes_read = read(inFD, buffer, sizeof(buffer))) > 0) {
-        bytes_written = write(outFD, buffer, bytes_read);
+    while ((bytes_read = read(inFD, buffer, sizeof(buffer))) > 0) { // While there is still more to read
+        bytes_written = write(outFD, buffer, bytes_read);   // Write to output file
         if (bytes_written != bytes_read) {
-            myPrint("ERROR: write error\n");
-            close(inFD);
+            myPrint("Error! write error\n");
+            close(inFD);    // Close files as needed on failure
             close(outFD);
             return;
         }
     }
 
-    if (bytes_read < 0) {
-        myPrint("ERROR: read error\n");
+    if (bytes_read < 0) { 
+        myPrint("Error! read error\n");
+        close(inFD);    // Close files as needed on failure
+        close(outFD);
     }
 
-    close(inFD);
+    close(inFD);    // Close files
     close(outFD);
 }
-
 
 /*
     Description: Moves the file found at the source path to the location found via the
@@ -234,10 +234,9 @@ void copyFile(char *sourcePath, char *destinationPath) { // cp
 */
 void moveFile(char *sourcePath, char *destinationPath)
 {   
-    //myPrint("Executing mv:\n");
     int file_moved = rename(sourcePath, destinationPath);     // Move the file, and check for success
     if(file_moved != 0) {
-        myPrint("ERROR: can't move file\n");     // Give appropriate error on fail
+        myPrint("Error! can't move file\n");     // Give appropriate error on fail
     } 
 }
 
@@ -250,10 +249,9 @@ void moveFile(char *sourcePath, char *destinationPath)
 */
 void deleteFile(char *filename)
 {
-    //myPrint("Executing rm:\n");
     int file_deleted = unlink(filename); // Call the unlink() system call to delete the file 
     if (file_deleted != 0) { // Check if the file deletion failed
-    myPrint("ERROR: can't delete file\n"); // If it failed, print an error message
+    myPrint("Error! can't delete file\n"); // If it failed, print an error message
 }
 }
 
@@ -267,31 +265,31 @@ void deleteFile(char *filename)
             N/A
 */
 void displayFile(char *filename) {
-    //myPrint("Executing cat:\n");
     int info, bytes_read;
     char *buf = (char*)malloc(1024 * sizeof(char)); // Allocate memory for a buffer of 1024 characters using calloc
 
     if (buf == NULL) {
-        myPrint("ERROR: memory allocation failed\n");
+        myPrint("Error! memory allocation failed\n");
         return;
     }
     info = open(filename, O_RDONLY); // Open the file specified by 'filename' in read-only mode
     if (info < 0) {
-        myPrint("ERROR: can't open file\n"); // If the open() call fails, print an error message
+        myPrint("Error! can't open file\n"); // If the open() call fails, print an error message
         free(buf); // Free the dynamically allocated memory for the buffer
         return;
     }
 
     while ((bytes_read = read(info, buf, 1024)) > 0) {
-        // Print the contents of the buffer
-        if (write(STDOUT_FILENO, buf, bytes_read) != bytes_read) {
-            myPrint("ERROR: write error\n");
+        if (write(STDOUT_FILENO, buf, bytes_read) != bytes_read) {         // Print the contents of the buffer
+            myPrint("Error! write error\n");
+            close(info);
+            free(buf);
             break;
         }
     }
 
     if (bytes_read < 0) {
-        myPrint("ERROR: read error\n");
+        myPrint("Error! read error\n");
     }
     myPrint("\n");
     close(info); // Close the file
